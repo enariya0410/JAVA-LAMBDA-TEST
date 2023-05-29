@@ -47,6 +47,7 @@ pipeline {
             }
             steps {
                 withSonarQubeEnv('sonarqube') {
+                    sh "sonar-scanner -Dsonar.projectKey=develop"
                     sh "${scannerHome}/bin/sonar-scanner"
                 }
                 timeout(time: 10, unit: 'MINUTES') {
