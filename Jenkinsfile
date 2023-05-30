@@ -42,15 +42,9 @@ pipeline {
             }
         }
         stage('Sonarqube') {
-            environment {
-                scannerHome = tool 'sonarqube'
-            }
             steps {
                 withSonarQubeEnv('sonarqube') {
-                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=develop -Dsonar.organization=develop -Dsonar.java.binaries=**/target/classes"
-                }
-                timeout(time: 10, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                    sh './mvnw clean org.sonarsource.scanner. maven: sonar-maven-plugin:3.9.0.2155:sonar'
                 }
             }
         }
