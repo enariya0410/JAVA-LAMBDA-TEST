@@ -19,13 +19,32 @@ pipeline {
     }
 
     stages {
-        stage('Build Lambda') {
-            agent any
+        stage('build && SonarQube analysis') {
             steps {
-                echo 'Build'
-                sh 'mvn clean install -Dmaven.test.skip=true'             
+                withSonarQubeEnv('sonarqube') {
+                    // Optionally use a Maven environment you've configured already
+                    withMaven(maven:'Maven 3.5') {
+                        sh 'mvn clean package sonar:sonar'
+                    }
+                }
             }
         }
+        stage("Quality Gate") {
+            steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
+                    // true = set pipeline to UNSTABLE, false = don't
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+   //     stage('Build Lambda') {
+  //          agent any
+   //         steps {
+   //             echo 'Build'
+    //            sh 'mvn clean install -Dmaven.test.skip=true'             
+    //        }
+    //    }
 
         stage('Test') {
             agent any
@@ -39,13 +58,6 @@ pipeline {
             agent none
             steps {
                 echo 'Push to artifactory'
-            }
-        }
-        stage('Sonarqube') {
-            steps {
-                withSonarQubeEnv('sonarqube') {
-                    sh 'sh 'mvn clean package sonar:sonar''
-                }
             }
         }
         stage('Deploy to QA') {
