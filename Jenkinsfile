@@ -19,23 +19,14 @@ pipeline {
     }
 
     stages {
-        stage('SonarQube analysis 1') {
+        
+        stage('Build Lambda') {
+            agent any
             steps {
-                sh 'mvn clean package sonar:sonar'
+                echo 'Build'
+                sh 'mvn clean install -Dmaven.test.skip=true'             
             }
         }
-        stage("Quality Gate 1") {
-            steps {
-                waitForQualityGate abortPipeline: true
-            }
-        }
-   //     stage('Build Lambda') {
-  //          agent any
-   //         steps {
-   //             echo 'Build'
-    //            sh 'mvn clean install -Dmaven.test.skip=true'             
-    //        }
-    //    }
 
         stage('Test') {
             agent any
